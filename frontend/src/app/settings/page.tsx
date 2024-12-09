@@ -36,10 +36,14 @@ export default function Page() {
               <Button>Upload Gambar Profil</Button>
               <Button variant="outline">Hapus</Button>
             </div>
-            <p className="text-sm w-[500px]">
+            <p className="text-sm w-[450px]">
               *Ukuran gambar minimal harus sebesar 320px dan ukuran file kurang
-              dari 500kb. Ekstensi file yang diperbolehkan: .png dan .jpg
+              dari 500kb.
             </p>
+            <p className="text-sm w-[450px]">
+              Ekstensi file yang diperbolehkan: .png dan .jpg
+            </p>
+
             <div className="flex space-x-6">
               <div className="grid w-full max-w-sm items-center gap-2">
                 <Label className="font-semibold" htmlFor="username">

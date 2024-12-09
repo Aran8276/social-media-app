@@ -1,4 +1,4 @@
-import Image from "next/image";
+// import Image from "next/image";
 import React from "react";
 import SuggestedFriendCard, { Suggested } from "./SuggestedFriendCard";
 import Link from "next/link";
@@ -20,8 +20,8 @@ export default function Feed() {
   ];
 
   return (
-    <aside className="flex h-screen sticky top-12 flex-col space-y-12 w-full">
-      <div className="flex flex-col space-y-6">
+    <aside className="flex h-screen sticky top-12 flex-col space-y-12 w-[300px]">
+      {/* <div className="flex flex-col space-y-6">
         <h2 className="text-2xl font-semibold">Shorts Terbaru</h2>
         <div className="flex space-x-3">
           <div className="">
@@ -45,7 +45,7 @@ export default function Feed() {
             />
           </div>
         </div>
-      </div>
+      </div> */}
       <div className="flex flex-col space-y-6">
         <h2 className="text-2xl font-semibold">Sugesti Teman</h2>
         <div className="flex flex-col space-y-5">
@@ -63,7 +63,7 @@ export default function Feed() {
           href="#"
           className="text-gray-400 hover:text-black transition-all w-fit"
         >
-          See all
+          Lihat semua
         </Link>
       </div>
     </aside>

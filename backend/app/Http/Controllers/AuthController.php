@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -16,6 +19,43 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau password salah'
+            ], 401);
+        }
+
+        return $this->respondWithToken($token);
+    }
+
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|max:256',
+            'username' => 'required|max:256|unique:users',
+            'email' => 'required|max:256|email:rfc,dns|unique:users',
+            '' => '',
+        ]);
+
+
+        $user_id = Str::random(16);
+
+        $data = [
+            "id" => $user_id,
+            "name" => $request->name,
+            "username" => $request->username,
+            "email" => $request->email,
+            "followers" => 0,
+            "following" => json_encode([]),
+            "liked_contents" => json_encode([]),
+            "password" => bcrypt($request->password)
+        ];
+
+        User::create($data);
+
+        $credentials = request(['email', 'password']);
+
+        if (! $token = Auth::attempt($credentials)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kesalahan'
             ], 401);
         }
 

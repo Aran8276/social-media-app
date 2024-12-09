@@ -17,6 +17,8 @@ Route::get('/user', function (Request $request) {
 Route::get('/posts', [PostsController::class, 'index']);
 Route::get('/shorts', [ShortsController::class, 'index']);
 
+Route::get('/posts/view', [PostsController::class, 'incrementView']);
+
 Route::get('/posts/{id}', [PostsController::class, 'showById']);
 Route::get('/shorts/{id}', [ShortsController::class, 'showById']);
 

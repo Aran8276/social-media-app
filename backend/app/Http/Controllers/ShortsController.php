@@ -12,11 +12,11 @@ class ShortsController extends Controller
 {
     public function index()
     {
-        $shorts = Shorts::with(['impressions'])->get();
+        $shorts = Shorts::with(['impressions', 'user'])->get();
         $user = Auth::user();
 
         if ($user) {
-            $liked_contents = json_decode($user->liked_contents);
+            $liked_contents = json_decode($user->liked_contents, true);
 
             $shorts->each(function ($shorts) use ($liked_contents) {
                 $shorts->is_liked = in_array($shorts->shorts_impressions_id, $liked_contents);
@@ -149,8 +149,18 @@ class ShortsController extends Controller
 
         $user = Auth::user();
 
+        if ($user) {
+            $data = $shorts->with(['impressions'])->first();
+            $data->is_liked = in_array($shorts->shorts_impressions_id, json_decode($user->liked_contents, true));
+            return response()->json([
+                "success" => true,
+                "message" => "Showing shorts of " . $id,
+                "shorts" => $data,
+            ], 200);
+        }
+
         $data = $shorts->with(['impressions'])->first();
-        $data->is_liked = in_array($shorts->shorts_impressions_id, json_decode($user->liked_contents));
+        $data->is_liked = false;
         return response()->json([
             "success" => true,
             "message" => "Showing shorts of " . $id,

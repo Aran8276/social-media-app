@@ -5,14 +5,20 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "avatar.iran.liara.run",
+        hostname: "**",
         port: "",
-        pathname: "/public/*",
+        pathname: "/**",
       },
       {
-        protocol: "https",
-        hostname: "via.placeholder.com",
+        protocol: "http",
+        hostname: "**",
         port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+        port: "8000",
         pathname: "/**",
       },
     ],

@@ -57,4 +57,9 @@ class Shorts extends Model
     {
         return $this->belongsTo(ShortsImpressions::class, 'shorts_impressions_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
 }

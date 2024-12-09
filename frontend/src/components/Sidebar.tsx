@@ -1,11 +1,38 @@
+"use client";
+
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SidebarNavLinks from "./SidebarNavLinks";
-import { sidebarNavLinks } from "./GlobalVariables";
+import { baseUrl, getSidebarNavLinks, requestHeader } from "./GlobalVariables";
 import { usePathname } from "next/navigation";
+import { UserResponse } from "./types/Responses";
+import axios, { AxiosError } from "axios";
 
 export default function Sidebar() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<UserResponse | null>(null);
   const pathName = usePathname();
+
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(`${baseUrl}/api/user`, requestHeader);
+      setUser(res.data);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log(error.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      setIsLoggedIn(true);
+    }
+  }, [user]);
 
   return (
     <aside className="flex h-screen sticky top-12 space-y-32 flex-col">
@@ -20,12 +47,18 @@ export default function Sidebar() {
             />
           </div>
           <div className="">
-            <h2 className="text-lg font-bold">Aran Aran</h2>
-            <h3 className="text-gray-500">@aran8276</h3>
+            {isLoggedIn ? (
+              <>
+                <h2 className="text-lg font-bold">{user?.name}</h2>
+                <h3 className="text-gray-500">@{user?.username}</h3>
+              </>
+            ) : (
+              <>Anda belum masuk</>
+            )}
           </div>
         </div>
         <nav className="w-[200px] flex flex-col space-y-4">
-          {sidebarNavLinks.map((item, index) => {
+          {getSidebarNavLinks(isLoggedIn).map((item, index) => {
             return (
               <SidebarNavLinks
                 isActive={pathName.startsWith(item.href)}

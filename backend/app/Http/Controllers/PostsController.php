@@ -11,16 +11,40 @@ use Illuminate\Support\Facades\Auth;
 
 class PostsController extends Controller
 {
+    public function incrementView()
+    {
+        $posts = Posts::with(['impressions'])->orderBy('created_at', 'desc')->get();
+
+        $posts->each(function ($post) {
+            $postImpression = $post->impressions;
+            if ($postImpression) {
+                $postImpression->increment('views');
+            }
+        });
+
+        return response()->json([
+            "success" => true,
+            "message" => "Showing all posts",
+            "posts" => $posts
+        ]);
+    }
+
+
     public function index()
     {
-        $posts = Posts::with(['media', 'impressions'])->get();
+        $posts = Posts::with(['media', 'impressions', 'user'])->orderBy('created_at', 'desc')->get();
         $user = Auth::user();
 
         if ($user) {
-            $liked_contents = json_decode($user->liked_contents);
+            $liked_contents = json_decode($user->liked_contents, true);
 
-            $posts->each(function ($post) use ($liked_contents) {
+            $posts->each(function ($post) use ($liked_contents, $user) {
                 $post->is_liked = in_array($post->post_impressions_id, $liked_contents);
+                if ($post->owner_id == $user->id) {
+                    $post->is_owned = true;
+                } else {
+                    $post->is_owned = false;
+                }
             });
 
             return response()->json([
@@ -32,6 +56,7 @@ class PostsController extends Controller
 
         $posts->each(function ($post) {
             $post->is_liked = false;
+            $post->is_owned = false;
         });
 
         return response()->json([
@@ -49,6 +74,7 @@ class PostsController extends Controller
             'photos.*' => 'file|mimes:jpg,png,jpeg,gif',
             'videos.*' => 'file|mimes:mp4',
         ]);
+
 
         $posts_id = Str::random(16);
         $owner_id = Auth::user()->id;
@@ -99,6 +125,16 @@ class PostsController extends Controller
             'content' => 'required|max:4096',
             'visibility' => 'required|in:public,private',
         ]);
+
+        $owner_id = Auth::user()->id;
+        if (Posts::find($id)->owner_id !== $owner_id) {
+            return response()->json([
+                "success" => false,
+                "message" => "You do not have permissions to edit: " . $id,
+                "post" => $id
+            ], 403);
+        }
+
         $form = [
             "content" => $request->content,
             "visibility" => $request->visibility,
@@ -121,7 +157,17 @@ class PostsController extends Controller
 
     public function delete($id)
     {
+        $owner_id = Auth::user()->id;
+        if (Posts::find($id)->owner_id !== $owner_id) {
+            return response()->json([
+                "success" => false,
+                "message" => "You do not have permissions to delete: " . $id,
+                "post" => $id
+            ], 403);
+        }
+
         $post = Posts::deleteById($id);
+
         if (!$post) {
             return response()->json([
                 "success" => false,
@@ -139,6 +185,7 @@ class PostsController extends Controller
     public function showById($id)
     {
         $post = Posts::find($id);
+        $user = Auth::user();
 
         if (!$post) {
             return response()->json([
@@ -148,10 +195,24 @@ class PostsController extends Controller
             ], 404);
         }
 
-        $user = Auth::user();
+        if ($user) {
+            $data = $post->with(['media', 'impressions', 'user'])->where("id", $id)->first();
+            $data->is_liked = in_array($post->post_impressions_id, json_decode($user->liked_contents, true));
+            if ($post->owner_id == $user->id) {
+                $data->is_owned = true;
+            } else {
+                $data->is_owned = false;
+            }
+            return response()->json([
+                "success" => true,
+                "message" => "Showing post of " . $id,
+                "post" => $data,
+            ], 200);
+        }
 
-        $data = $post->with(['media', 'impressions'])->first();
-        $data->is_liked = in_array($post->post_impressions_id, $user->liked_contents);
+        $data = $post->with(['media', 'impressions', 'user'])->where("id", $id)->first();
+        $data->is_liked = false;
+
         return response()->json([
             "success" => true,
             "message" => "Showing post of " . $id,

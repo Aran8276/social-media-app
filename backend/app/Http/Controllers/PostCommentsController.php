@@ -21,13 +21,18 @@ class PostCommentsController extends Controller
             ], 404);
         }
 
-        $comments = PostComment::where("post_impressions_id", $id)->get();
+        $comments = PostComment::with(['user'])->where("post_impressions_id", $id)->get();
         $user = Auth::user();
 
         if ($user) {
-            $liked_contents = json_decode($user->liked_contents);
-            $comments->each(function ($comments) use ($liked_contents) {
+            $liked_contents = json_decode($user->liked_contents, true);
+            $comments->each(function ($comments) use ($liked_contents, $user) {
                 $comments->is_liked = in_array($comments->id, $liked_contents);
+                if ($comments->owner_id == $user->id) {
+                    $comments->is_owned = true;
+                } else {
+                    $comments->is_owned = false;
+                }
             });
             return response()->json([
                 "success" => true,
@@ -38,6 +43,7 @@ class PostCommentsController extends Controller
 
         $comments->each(function ($comments) {
             $comments->is_liked = false;
+            $comments->is_owned = false;
         });
 
         return response()->json([

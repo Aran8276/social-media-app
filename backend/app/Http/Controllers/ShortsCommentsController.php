@@ -25,7 +25,7 @@ class ShortsCommentsController extends Controller
         $user = Auth::user();
 
         if ($user) {
-            $liked_contents = json_decode($user->liked_contents);
+            $liked_contents = json_decode($user->liked_contents, true);
             $comments->each(function ($comments) use ($liked_contents) {
                 $comments->is_liked = in_array($comments->id, $liked_contents);
             });

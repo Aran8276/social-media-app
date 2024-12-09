@@ -18,7 +18,7 @@ class LikesController extends Controller
         $user = Auth::user();
 
         return response()->json([
-            "data" => json_decode($user->liked_contents)
+            "data" => json_decode($user->liked_contents, true)
         ]);
     }
 
@@ -36,7 +36,7 @@ class LikesController extends Controller
 
         $user = Auth::user();
         $user_model = User::find($user->id);
-        $liked_contents = json_decode($user->liked_contents);
+        $liked_contents = json_decode($user->liked_contents, true);
         $prev_likes = $post->likes;
 
         if (!in_array($post->id, $liked_contents)) {
@@ -94,7 +94,7 @@ class LikesController extends Controller
 
         $user = Auth::user();
         $user_model = User::find($user->id);
-        $liked_contents = json_decode($user->liked_contents);
+        $liked_contents = json_decode($user->liked_contents, true);
         $prev_likes = $shorts->likes;
 
         if (!in_array($shorts->id, $liked_contents)) {
@@ -152,7 +152,7 @@ class LikesController extends Controller
 
         $user = Auth::user();
         $user_model = User::find($user->id);
-        $liked_contents = json_decode($user->liked_contents);
+        $liked_contents = json_decode($user->liked_contents, true);
         $prev_likes = $comment->likes;
 
         if (!in_array($comment->id, $liked_contents)) {
@@ -209,7 +209,7 @@ class LikesController extends Controller
 
         $user = Auth::user();
         $user_model = User::find($user->id);
-        $liked_contents = json_decode($user->liked_contents);
+        $liked_contents = json_decode($user->liked_contents, true);
         $prev_likes = $comment->likes;
 
         if (!in_array($comment->id, $liked_contents)) {

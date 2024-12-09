@@ -56,4 +56,9 @@ class Posts extends Model
     {
         return $this->belongsTo(PostImpressions::class, 'post_impressions_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
 }
